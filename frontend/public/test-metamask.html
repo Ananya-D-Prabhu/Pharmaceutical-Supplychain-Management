@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MetaMask Test</title>
+</head>
+<body>
+    <h1>MetaMask Connection Test</h1>
+    <button onclick="testMetaMask()">Test MetaMask</button>
+    <div id="output"></div>
+
+    <script>
+        async function testMetaMask() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<h2>Testing MetaMask...</h2>';
+
+            // Test 1: Check if MetaMask is installed
+            if (typeof window.ethereum !== 'undefined') {
+                output.innerHTML += '<p>✅ MetaMask is installed</p>';
+            } else {
+                output.innerHTML += '<p>❌ MetaMask not detected</p>';
+                return;
+            }
+
+            // Test 2: Check current network
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                output.innerHTML += `<p>Current Chain ID: ${chainId} (${parseInt(chainId, 16)})</p>`;
+            } catch (error) {
+                output.innerHTML += `<p>❌ Error getting chain ID: ${error.message}</p>`;
+            }
+
+            // Test 3: Try to connect
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                output.innerHTML += `<p>✅ Connected to: ${accounts[0]}</p>`;
+            } catch (error) {
+                output.innerHTML += `<p>❌ Connection error: ${error.message}</p>`;
+            }
+
+            // Test 4: Get balance
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                if (accounts.length > 0) {
+                    const balance = await window.ethereum.request({
+                        method: 'eth_getBalance',
+                        params: [accounts[0], 'latest']
+                    });
+                    output.innerHTML += `<p>Balance: ${parseInt(balance, 16) / 1e18} ETH</p>`;
+                }
+            } catch (error) {
+                output.innerHTML += `<p>❌ Balance error: ${error.message}</p>`;
+            }
+
+            // Test 5: Check if Hardhat network is configured
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (parseInt(chainId, 16) === 31337) {
+                    output.innerHTML += '<p>✅ Connected to Hardhat Local Network</p>';
+                } else {
+                    output.innerHTML += '<p>⚠️ WARNING: Not on Hardhat Local (Chain 31337). Please switch network in MetaMask!</p>';
+                }
+            } catch (error) {
+                output.innerHTML += `<p>❌ Network check error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
