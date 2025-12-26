@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import contractABI from "../contractConfig";
+import "./SuccessModal.css";
 
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
@@ -10,6 +11,8 @@ export default function AddProductNew() {
     description: "",
     minTemp: "",
     maxTemp: "",
+    minHumidity: "",
+    maxHumidity: "",
     quantity: "",
     mfgDate: "",
   });
@@ -18,6 +21,8 @@ export default function AddProductNew() {
   const [success, setSuccess] = useState("");
   const [account, setAccount] = useState("");
   const [productId, setProductId] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [txHash, setTxHash] = useState("");
 
   useEffect(() => {
     checkConnection();
@@ -57,13 +62,18 @@ export default function AddProductNew() {
       return;
     }
 
-    if (!form.name || !form.description || !form.minTemp || !form.maxTemp || !form.quantity || !form.mfgDate) {
+    if (!form.name || !form.description || !form.minTemp || !form.maxTemp || !form.minHumidity || !form.maxHumidity || !form.quantity || !form.mfgDate) {
       setError("Please fill in all fields");
       return;
     }
 
     if (parseInt(form.minTemp) > parseInt(form.maxTemp)) {
       setError("Minimum temperature cannot be greater than maximum temperature");
+      return;
+    }
+
+    if (parseInt(form.minHumidity) > parseInt(form.maxHumidity)) {
+      setError("Minimum humidity cannot be greater than maximum humidity");
       return;
     }
 
@@ -86,6 +96,8 @@ export default function AddProductNew() {
         form.description,
         parseInt(form.minTemp),
         parseInt(form.maxTemp),
+        parseInt(form.minHumidity),
+        parseInt(form.maxHumidity),
         parseInt(form.quantity),
         form.mfgDate
       );
@@ -107,12 +119,14 @@ export default function AddProductNew() {
         const parsed = contract.interface.parseLog(event);
         const newProductId = parsed.args[0].toString();
         setProductId(newProductId);
-        setSuccess(`✅ Product added successfully! Product ID: ${newProductId}`);
+        setSuccess(`Product added successfully!`);
       } else {
-        setSuccess(`✅ Product added successfully! TX: ${receipt.hash.slice(0, 10)}...`);
+        setSuccess(`Product added successfully!`);
       }
-
-      setForm({ name: "", description: "", minTemp: "", maxTemp: "", quantity: "", mfgDate: "" });
+      
+      setTxHash(receipt.hash);
+      setShowModal(true);
+      setForm({ name: "", description: "", minTemp: "", maxTemp: "", minHumidity: "", maxHumidity: "", quantity: "", mfgDate: "" });
     } catch (error) {
       console.error("Error:", error);
       setError(error.reason || error.message || "Failed to add product");
@@ -216,6 +230,40 @@ export default function AddProductNew() {
 
               <div className="form-row">
                 <div className="form-group">
+                  <label htmlFor="minHumidity">
+                    <span className="label-icon">💧</span>
+                    Minimum Humidity (%)
+                  </label>
+                  <input
+                    id="minHumidity"
+                    type="number"
+                    placeholder="e.g., 30"
+                    value={form.minHumidity}
+                    onChange={(e) => handleChange("minHumidity", e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="maxHumidity">
+                    <span className="label-icon">💦</span>
+                    Maximum Humidity (%)
+                  </label>
+                  <input
+                    id="maxHumidity"
+                    type="number"
+                    placeholder="e.g., 60"
+                    value={form.maxHumidity}
+                    onChange={(e) => handleChange("maxHumidity", e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
                   <label htmlFor="quantity">
                     <span className="label-icon">📦</span>
                     Quantity
@@ -256,25 +304,6 @@ export default function AddProductNew() {
                 </div>
               )}
 
-              {success && (
-                <div className="alert alert-success">
-                  <span className="alert-icon">✅</span>
-                  {success}
-                  {productId && (
-                    <div className="product-id-display">
-                      <strong>Use this Product ID to update status:</strong>
-                      <div className="id-badge" onClick={() => {
-                        navigator.clipboard.writeText(productId);
-                        alert("Product ID copied to clipboard!");
-                      }}>
-                        <span className="id-value">{productId}</span>
-                        <span className="copy-hint">📋 Click to copy</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
               <button 
                 type="submit" 
                 className="btn-submit"
@@ -296,6 +325,58 @@ export default function AddProductNew() {
           </>
         )}
       </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="success-icon">✅</div>
+              <h3>Success!</h3>
+            </div>
+            <div className="modal-body">
+              <p className="modal-message">{success}</p>
+              {productId && (
+                <div className="product-id-section">
+                  <span className="info-label">Product ID:</span>
+                  <div className="id-display">
+                    <code className="id-value">{productId}</code>
+                    <button 
+                      className="copy-btn"
+                      onClick={() => {
+                        navigator.clipboard.writeText(productId);
+                      }}
+                      title="Copy Product ID"
+                    >
+                      📋
+                    </button>
+                  </div>
+                  <p className="hint-text">Use this ID to update product status</p>
+                </div>
+              )}
+              <div className="tx-info">
+                <span className="tx-label">Transaction Hash:</span>
+                <div className="tx-hash">
+                  <code>{txHash.slice(0, 10)}...{txHash.slice(-8)}</code>
+                  <button 
+                    className="copy-btn"
+                    onClick={() => {
+                      navigator.clipboard.writeText(txHash);
+                    }}
+                    title="Copy full hash"
+                  >
+                    📋
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-close-btn" onClick={() => setShowModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

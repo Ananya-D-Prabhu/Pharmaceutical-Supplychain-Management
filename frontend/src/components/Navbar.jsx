@@ -15,7 +15,7 @@ export default function Navbar({ children }) {
       zIndex: 1000
     }}>
       <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "700" }}>
-        💊 Pharma Supply Chain
+        💊 Pharmexis
       </h2>
       {children}
     </nav>

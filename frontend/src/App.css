@@ -19,46 +19,173 @@ body {
 }
 
 .sidebar {
-  width: 250px;
-  background: white;
+  width: 280px;
+  background: linear-gradient(180deg, #4051B5 0%, #3944A0 50%, #2D3585 100%);
   min-height: calc(100vh - 60px);
-  padding: 20px;
-  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  padding: 0;
+  box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: radial-gradient(circle at 50% 150%, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.sidebar-menu {
+  padding: 25px 0;
 }
 
 .sidebar h3 {
-  margin-bottom: 20px;
-  color: #333;
+  display: none;
+}
+
+.sidebar-message {
+  padding: 20px 25px;
+  background: rgba(255, 243, 205, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  text-align: center;
+  margin: 0 15px 20px 15px;
+}
+
+.sidebar-message p {
+  color: #FFE082;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.sidebar-message small {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+.role-badge-container {
+  margin: 0 15px 25px 15px;
+  text-align: center;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  color: black;
+  border-radius: 25px;
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
 }
 
 .sidebar button {
   width: 100%;
-  padding: 15px;
-  margin-bottom: 10px;
+  padding: 16px 25px;
+  margin: 0;
   border: none;
-  background: #f0f0f0;
-  border-radius: 8px;
+  background: transparent;
+  border-left: 3px solid transparent;
   text-align: left;
   cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
 }
 
 .sidebar button:hover {
-  background: #e0e0e0;
-  transform: translateX(5px);
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: rgba(255, 255, 255, 0.5);
+  color: white;
+  transform: translateX(0);
+  padding-left: 28px;
 }
 
 .sidebar button.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  font-weight: 600;
+  border-left-color: white;
+  padding-left: 28px;
+}
+
+.sidebar button.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #FFD54F 0%, #FFA726 100%);
+  box-shadow: 0 0 10px rgba(255, 213, 79, 0.5);
+}
+
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-weight: bold;
+  padding: 15px 30px;
+  text-align: center;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.app-footer p {
+  margin: 0;
+  font-size: 13px;
+  color: white;
+  letter-spacing: 0.5px;
 }
 
 .content {
   flex: 1;
-  padding: 30px;
+  padding: 30px 30px 80px 30px;
   overflow-y: auto;
+}
+
+.welcome-screen {
+  text-align: center;
+  padding: 100px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 50px auto;
+}
+
+.welcome-screen h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 32px;
+}
+
+.welcome-screen p {
+  color: #666;
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.welcome-screen code {
+  background: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #e91e63;
 }
 
 .container {

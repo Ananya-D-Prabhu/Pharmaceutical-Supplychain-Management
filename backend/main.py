@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import workers, products, status
+from routers import workers, products, status, performance
 
 app = FastAPI(title="Pharmaceutical Supply Chain Backend")
 
@@ -20,3 +20,4 @@ def root():
 app.include_router(workers.router)
 app.include_router(products.router)
 app.include_router(status.router)
+app.include_router(performance.router)

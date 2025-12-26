@@ -11,7 +11,7 @@
 
 .stat-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: black !important;
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -20,18 +20,22 @@
 
 .stat-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
 }
 
 .stat-card h3 {
   margin: 0 0 10px 0;
   font-size: 18px;
   font-weight: 500;
+  color: black !important;
+  opacity: 0.95;
 }
 
 .stat-number {
   font-size: 48px;
   font-weight: bold;
   margin: 10px 0 0 0;
+  color: black !important;
 }
 
 .quick-actions {

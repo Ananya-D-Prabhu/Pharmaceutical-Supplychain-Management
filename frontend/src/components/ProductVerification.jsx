@@ -81,9 +81,16 @@ export default function ProductVerification() {
       // Verify product exists
       const productExists = blockchainProduct.name !== "";
 
-      // Get manufacturer info
-      const manufacturerId = blockchainProduct.currentOwner;
-      const manufacturer = await contract.workers(manufacturerId);
+      // Get manufacturer info based on the QR signer's address
+      let manufacturerName = "Unknown";
+      try {
+        const signerAddress = parsedData.security.signerAddress;
+        const manufacturerId = await contract.addressToWorkerId(signerAddress);
+        const manufacturer = await contract.workers(manufacturerId);
+        manufacturerName = manufacturer.name || "Unknown";
+      } catch (resolveError) {
+        console.error("Error resolving manufacturer from signer:", resolveError);
+      }
 
       // Check if product is spoiled
       const isSpoiled = blockchainProduct.isSpoiled;
@@ -112,7 +119,7 @@ export default function ProductVerification() {
           verified: productExists,
           network: parsedData.verification.network,
           contract: parsedData.verification.contract,
-          manufacturer: manufacturer.name,
+          manufacturer: manufacturerName,
           trackingRecords: history.length
         },
         security: {

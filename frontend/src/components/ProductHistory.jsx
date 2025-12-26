@@ -62,10 +62,24 @@ export default function ProductHistoryNew() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
 
+      // First check if product exists
+      try {
+        const product = await contract.products(parseInt(id));
+        if (!product.name || product.name === "") {
+          setError(`Product #${id} does not exist. Please check the product ID.`);
+          setLoading(false);
+          return;
+        }
+      } catch (productError) {
+        setError(`Product #${id} does not exist. Please check the product ID.`);
+        setLoading(false);
+        return;
+      }
+
       const result = await contract.getProductHistory(parseInt(id));
       
       if (result.length === 0) {
-        setError("No history found for this product");
+        setError(`Product #${id} exists but has no status updates yet. Add status updates via "Update Status" menu.`);
       } else {
         const formattedHistory = result.map((h, i) => ({
           index: i + 1,
@@ -80,7 +94,12 @@ export default function ProductHistoryNew() {
       }
     } catch (error) {
       console.error("Error loading history:", error);
-      setError(error.message || "Failed to load history");
+      
+      if (error.message.includes("could not decode result data")) {
+        setError(`Product #${id} does not exist or has no history. Please check the product ID.`);
+      } else {
+        setError(error.message || "Failed to load history");
+      }
     } finally {
       setLoading(false);
     }

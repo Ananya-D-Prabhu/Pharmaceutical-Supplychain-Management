@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import contractABI from "../contractConfig";
+import "./SuccessModal.css";
 
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
@@ -12,6 +13,8 @@ export default function AddWorker() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [account, setAccount] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [txHash, setTxHash] = useState("");
 
   useEffect(() => {
     checkConnection();
@@ -77,13 +80,13 @@ export default function AddWorker() {
       setSuccess("Transaction submitted! Waiting for confirmation...");
       
       const receipt = await tx.wait();
-      setSuccess(`✅ Worker registered successfully! TX: ${receipt.hash.slice(0, 10)}...`);
+      setTxHash(receipt.hash);
+      setSuccess(`Worker registered successfully!`);
+      setShowModal(true);
       
       setName("");
       setRole("0");
       setWalletAddress("");
-      
-      setTimeout(() => setSuccess(""), 5000);
     } catch (error) {
       console.error("Error adding worker:", error);
       setError(error.reason || error.message || "Failed to add worker");
@@ -179,13 +182,6 @@ export default function AddWorker() {
                 </div>
               )}
 
-              {success && (
-                <div className="alert alert-success">
-                  <span className="alert-icon">✅</span>
-                  {success}
-                </div>
-              )}
-
               <button 
                 type="submit" 
                 className="btn-submit"
@@ -207,6 +203,40 @@ export default function AddWorker() {
           </>
         )}
       </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="success-icon">✅</div>
+              <h3>Success!</h3>
+            </div>
+            <div className="modal-body">
+              <p className="modal-message">{success}</p>
+              <div className="tx-info">
+                <span className="tx-label">Transaction Hash:</span>
+                <div className="tx-hash">
+                  <code>{txHash.slice(0, 10)}...{txHash.slice(-8)}</code>
+                  <button 
+                    className="copy-btn"
+                    onClick={() => {
+                      navigator.clipboard.writeText(txHash);
+                    }}
+                    title="Copy full hash"
+                  >
+                    📋
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-close-btn" onClick={() => setShowModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

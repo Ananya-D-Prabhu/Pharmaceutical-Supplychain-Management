@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import contractABI from "../contractConfig";
+import "./SuccessModal.css";
 
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
@@ -9,12 +10,16 @@ export default function AddStatusNew() {
     productId: "",
     location: "",
     temperature: "",
+    humidity: "",
     quantity: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [account, setAccount] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [txHash, setTxHash] = useState("");
+  const [productId, setProductId] = useState("");
 
   useEffect(() => {
     checkConnection();
@@ -54,7 +59,7 @@ export default function AddStatusNew() {
       return;
     }
 
-    if (!data.productId || !data.location || !data.temperature || !data.quantity) {
+    if (!data.productId || !data.location || !data.temperature || !data.humidity || !data.quantity) {
       setError("Please fill in all fields");
       return;
     }
@@ -72,15 +77,19 @@ export default function AddStatusNew() {
         parseInt(data.productId),
         data.location,
         parseInt(data.temperature),
+        parseInt(data.humidity),
         parseInt(data.quantity)
       );
 
       setSuccess("Transaction submitted! Waiting for confirmation...");
       const receipt = await tx.wait();
-      setSuccess(`✅ Status updated successfully! TX: ${receipt.hash.slice(0, 10)}...`);
+      
+      setTxHash(receipt.hash);
+      setProductId(data.productId);
+      setSuccess(`Status updated successfully!`);
+      setShowModal(true);
 
-      setData({ productId: "", location: "", temperature: "", quantity: "" });
-      setTimeout(() => setSuccess(""), 5000);
+      setData({ productId: "", location: "", temperature: "", humidity: "", quantity: "" });
     } catch (error) {
       console.error("Error:", error);
       setError(error.reason || error.message || "Failed to update status");
@@ -166,33 +175,42 @@ export default function AddStatusNew() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="quantity">
-                    <span className="label-icon">📊</span>
-                    Quantity
+                  <label htmlFor="humidity">
+                    <span className="label-icon">💧</span>
+                    Current Humidity (%)
                   </label>
                   <input
-                    id="quantity"
+                    id="humidity"
                     type="number"
-                    placeholder="e.g., 100"
-                    value={data.quantity}
-                    onChange={(e) => handleChange("quantity", e.target.value)}
+                    placeholder="e.g., 45"
+                    value={data.humidity}
+                    onChange={(e) => handleChange("humidity", e.target.value)}
                     disabled={loading}
                     required
                   />
                 </div>
               </div>
 
+              <div className="form-group">
+                <label htmlFor="quantity">
+                  <span className="label-icon">📊</span>
+                  Quantity
+                </label>
+                <input
+                  id="quantity"
+                  type="number"
+                  placeholder="e.g., 100"
+                  value={data.quantity}
+                  onChange={(e) => handleChange("quantity", e.target.value)}
+                  disabled={loading}
+                  required
+                />
+              </div>
+
               {error && (
                 <div className="alert alert-error">
                   <span className="alert-icon">❌</span>
                   {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="alert alert-success">
-                  <span className="alert-icon">✅</span>
-                  {success}
                 </div>
               )}
 
@@ -217,6 +235,46 @@ export default function AddStatusNew() {
           </>
         )}
       </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="success-icon">✅</div>
+              <h3>Success!</h3>
+            </div>
+            <div className="modal-body">
+              <p className="modal-message">{success}</p>
+              <div className="product-id-section">
+                <span className="info-label">Product ID:</span>
+                <div className="id-display">
+                  <code className="id-value">{productId}</code>
+                </div>
+              </div>
+              <div className="tx-info">
+                <span className="tx-label">Transaction Hash:</span>
+                <div className="tx-hash">
+                  <code>{txHash.slice(0, 10)}...{txHash.slice(-8)}</code>
+                  <button 
+                    className="copy-btn"
+                    onClick={() => {
+                      navigator.clipboard.writeText(txHash);
+                    }}
+                    title="Copy full hash"
+                  >
+                    📋
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="modal-close-btn" onClick={() => setShowModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -23,6 +23,8 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError("");
+      
+      console.log("🔍 Starting dashboard data fetch...");
 
       if (!window.ethereum) {
         setError("Please install MetaMask to view dashboard");
@@ -32,39 +34,53 @@ export default function Dashboard() {
 
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
+      
+      console.log("✅ Contract connected:", CONTRACT_ADDRESS);
 
       // Get workers count
+      console.log("📊 Fetching workers...");
       const workers = await contract.getWorkers();
       const workersCount = workers.length;
+      console.log(`✅ Found ${workersCount} workers`);
 
       // Get products count from events
+      console.log("📊 Querying ProductAdded events...");
       const productFilter = contract.filters.ProductAdded();
       const productEvents = await contract.queryFilter(productFilter);
       const productsCount = productEvents.length;
+      console.log(`✅ Found ${productsCount} products`);
 
       // Get total status updates count
+      console.log("📊 Querying StatusUpdated events...");
       const statusFilter = contract.filters.StatusUpdated();
       const statusEvents = await contract.queryFilter(statusFilter);
       const updatesCount = statusEvents.length;
+      console.log(`✅ Found ${updatesCount} status updates`);
 
       // Count spoiled products
+      console.log("📊 Checking spoiled products...");
       let spoiledCount = 0;
       for (let i = 0; i < productsCount; i++) {
         const product = await contract.products(i);
+        console.log(`  Product ${i}: isSpoiled=${product.isSpoiled}`);
         if (product.isSpoiled) {
           spoiledCount++;
         }
       }
+      console.log(`✅ Found ${spoiledCount} spoiled products`);
 
-      setStats({
+      const newStats = {
         totalProducts: productsCount,
         totalWorkers: workersCount,
         totalUpdates: updatesCount,
         spoiledProducts: spoiledCount
-      });
+      };
+      
+      console.log("📊 Final stats:", newStats);
+      setStats(newStats);
     } catch (error) {
-      console.error("Error fetching stats:", error);
-      setError("Failed to load dashboard data. Make sure the blockchain is running.");
+      console.error("❌ Error fetching stats:", error);
+      setError(`Failed to load dashboard data: ${error.message}`);
     } finally {
       setLoading(false);
     }

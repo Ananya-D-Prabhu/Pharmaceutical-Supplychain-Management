@@ -52,6 +52,8 @@ contract SupplyChain {
         string description;
         int256 minTemp;
         int256 maxTemp;
+        int256 minHumidity;
+        int256 maxHumidity;
         uint256 quantity;
         string mfgDate;
         uint256 timestampCreated;
@@ -62,6 +64,7 @@ contract SupplyChain {
     struct Status {
         string location;
         int256 temperature;
+        int256 humidity;
         uint256 workerId;
         uint256 productId;
         uint256 quantity;
@@ -145,6 +148,8 @@ contract SupplyChain {
         string memory description,
         int256 minTemp,
         int256 maxTemp,
+        int256 minHumidity,
+        int256 maxHumidity,
         uint256 quantity,
         string memory mfgDate
     ) 
@@ -152,6 +157,7 @@ contract SupplyChain {
         onlyManufacturer 
     {
         require(minTemp <= maxTemp, "MIN TEMP CANNOT BE GREATER THAN MAX TEMP");
+        require(minHumidity <= maxHumidity, "MIN HUMIDITY CANNOT BE GREATER THAN MAX HUMIDITY");
         require(quantity > 0, "QUANTITY MUST BE GREATER THAN ZERO");
         
         uint256 manufacturerId = addressToWorkerId[msg.sender];
@@ -162,6 +168,8 @@ contract SupplyChain {
             description,
             minTemp,
             maxTemp,
+            minHumidity,
+            maxHumidity,
             quantity,
             mfgDate,
             block.timestamp,
@@ -178,6 +186,7 @@ contract SupplyChain {
         uint256 productId,
         string memory location,
         int256 temperature,
+        int256 humidity,
         uint256 quantity
     ) 
         public 
@@ -185,11 +194,20 @@ contract SupplyChain {
     {
         require(productId < productIdCounter, "PRODUCT DOES NOT EXIST");
         
-        uint256 workerId = addressToWorkerId[msg.sender];
         Product storage product = products[productId];
         
-        // Check if temperature is within acceptable range
-        bool isSpoiled = (temperature < product.minTemp || temperature > product.maxTemp);
+        // 🔒 PREVENT UPDATES TO SPOILED PRODUCTS
+        require(!product.isSpoiled, "PRODUCT IS SPOILED - CANNOT UPDATE");
+        
+        uint256 workerId = addressToWorkerId[msg.sender];
+        
+        // 🎯 ONLY ASSIGNED WORKER CAN UPDATE
+        require(product.currentOwner == workerId, "ONLY ASSIGNED WORKER CAN UPDATE THIS PRODUCT");
+        
+        // Check if temperature AND humidity are within acceptable range
+        bool tempViolation = (temperature < product.minTemp || temperature > product.maxTemp);
+        bool humidityViolation = (humidity < product.minHumidity || humidity > product.maxHumidity);
+        bool isSpoiled = tempViolation || humidityViolation;
         
         // If spoiled, update product's spoiled flag
         if (isSpoiled && !product.isSpoiled) {
@@ -199,6 +217,7 @@ contract SupplyChain {
         Status memory s = Status(
             location,
             temperature,
+            humidity,
             workerId,
             productId,
             quantity,
@@ -211,10 +230,17 @@ contract SupplyChain {
         emit StatusUpdated(productId, location, temperature);
     }
 
-    // 4️⃣ TRANSFER OWNERSHIP
-    function transferOwnership(uint256 productId, uint256 newWorkerId) public onlyOwner {
+    // 4️⃣ TRANSFER OWNERSHIP (Assign worker to product)
+    function transferOwnership(uint256 productId, uint256 newWorkerId) public {
         require(productId < productIdCounter, "INVALID PRODUCT ID");
         require(newWorkerId < workerIdCounter, "INVALID WORKER ID");
+        
+        // Only the current owner of the product or contract owner can transfer
+        uint256 senderWorkerId = addressToWorkerId[msg.sender];
+        require(
+            msg.sender == owner || products[productId].currentOwner == senderWorkerId,
+            "ONLY CURRENT OWNER CAN ASSIGN"
+        );
 
         uint256 oldOwner = products[productId].currentOwner;
         products[productId].currentOwner = newWorkerId;
@@ -279,5 +305,32 @@ contract SupplyChain {
         returns(SensorData[] memory) 
     {
         return sensorLogs[productId];
+    }
+
+    // Get all products assigned to a specific worker
+    function getAssignedProducts(uint256 workerId) 
+        public 
+        view 
+        returns(uint256[] memory) 
+    {
+        // First, count how many products are assigned to this worker
+        uint256 count = 0;
+        for(uint i = 0; i < productIdCounter; i++) {
+            if(products[i].currentOwner == workerId) {
+                count++;
+            }
+        }
+        
+        // Create array of assigned product IDs
+        uint256[] memory assignedProducts = new uint256[](count);
+        uint256 index = 0;
+        for(uint i = 0; i < productIdCounter; i++) {
+            if(products[i].currentOwner == workerId) {
+                assignedProducts[index] = i;
+                index++;
+            }
+        }
+        
+        return assignedProducts;
     }
 }

@@ -61,6 +61,31 @@
                        },
                        {
                            "indexed":  false,
+                           "internalType":  "int256",
+                           "name":  "temperature",
+                           "type":  "int256"
+                       },
+                       {
+                           "indexed":  false,
+                           "internalType":  "string",
+                           "name":  "location",
+                           "type":  "string"
+                       }
+                   ],
+        "name":  "ProductSpoiled",
+        "type":  "event"
+    },
+    {
+        "anonymous":  false,
+        "inputs":  [
+                       {
+                           "indexed":  false,
+                           "internalType":  "uint256",
+                           "name":  "productId",
+                           "type":  "uint256"
+                       },
+                       {
+                           "indexed":  false,
                            "internalType":  "uint256",
                            "name":  "temperature",
                            "type":  "uint256"
@@ -86,9 +111,9 @@
                        },
                        {
                            "indexed":  false,
-                           "internalType":  "string",
+                           "internalType":  "int256",
                            "name":  "temperature",
-                           "type":  "string"
+                           "type":  "int256"
                        }
                    ],
         "name":  "StatusUpdated",
@@ -132,19 +157,34 @@
                            "type":  "string"
                        },
                        {
-                           "internalType":  "string",
-                           "name":  "requiredTemp",
-                           "type":  "string"
+                           "internalType":  "int256",
+                           "name":  "minTemp",
+                           "type":  "int256"
+                       },
+                       {
+                           "internalType":  "int256",
+                           "name":  "maxTemp",
+                           "type":  "int256"
+                       },
+                       {
+                           "internalType":  "int256",
+                           "name":  "minHumidity",
+                           "type":  "int256"
+                       },
+                       {
+                           "internalType":  "int256",
+                           "name":  "maxHumidity",
+                           "type":  "int256"
+                       },
+                       {
+                           "internalType":  "uint256",
+                           "name":  "quantity",
+                           "type":  "uint256"
                        },
                        {
                            "internalType":  "string",
                            "name":  "mfgDate",
                            "type":  "string"
-                       },
-                       {
-                           "internalType":  "uint256",
-                           "name":  "manufacturerId",
-                           "type":  "uint256"
                        }
                    ],
         "name":  "addProduct",
@@ -152,6 +192,25 @@
 
                     ],
         "stateMutability":  "nonpayable",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
+                           "internalType":  "address",
+                           "name":  "",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "addressToWorkerId",
+        "outputs":  [
+                        {
+                            "internalType":  "uint256",
+                            "name":  "",
+                            "type":  "uint256"
+                        }
+                    ],
+        "stateMutability":  "view",
         "type":  "function"
     },
     {
@@ -182,9 +241,29 @@
                                                    "type":  "string"
                                                },
                                                {
-                                                   "internalType":  "string",
-                                                   "name":  "requiredTemp",
-                                                   "type":  "string"
+                                                   "internalType":  "int256",
+                                                   "name":  "minTemp",
+                                                   "type":  "int256"
+                                               },
+                                               {
+                                                   "internalType":  "int256",
+                                                   "name":  "maxTemp",
+                                                   "type":  "int256"
+                                               },
+                                               {
+                                                   "internalType":  "int256",
+                                                   "name":  "minHumidity",
+                                                   "type":  "int256"
+                                               },
+                                               {
+                                                   "internalType":  "int256",
+                                                   "name":  "maxHumidity",
+                                                   "type":  "int256"
+                                               },
+                                               {
+                                                   "internalType":  "uint256",
+                                                   "name":  "quantity",
+                                                   "type":  "uint256"
                                                },
                                                {
                                                    "internalType":  "string",
@@ -200,6 +279,11 @@
                                                    "internalType":  "uint256",
                                                    "name":  "currentOwner",
                                                    "type":  "uint256"
+                                               },
+                                               {
+                                                   "internalType":  "bool",
+                                                   "name":  "isSpoiled",
+                                                   "type":  "bool"
                                                }
                                            ],
                             "internalType":  "struct SupplyChain.Product",
@@ -228,19 +312,14 @@
                                                    "type":  "string"
                                                },
                                                {
-                                                   "internalType":  "string",
+                                                   "internalType":  "int256",
                                                    "name":  "temperature",
-                                                   "type":  "string"
+                                                   "type":  "int256"
                                                },
                                                {
-                                                   "internalType":  "string",
+                                                   "internalType":  "int256",
                                                    "name":  "humidity",
-                                                   "type":  "string"
-                                               },
-                                               {
-                                                   "internalType":  "string",
-                                                   "name":  "heatIndex",
-                                                   "type":  "string"
+                                                   "type":  "int256"
                                                },
                                                {
                                                    "internalType":  "uint256",
@@ -259,7 +338,7 @@
                                                },
                                                {
                                                    "internalType":  "bool",
-                                                   "name":  "qualityMaintained",
+                                                   "name":  "isSpoiled",
                                                    "type":  "bool"
                                                },
                                                {
@@ -367,6 +446,25 @@
     {
         "inputs":  [
                        {
+                           "internalType":  "address",
+                           "name":  "",
+                           "type":  "address"
+                       }
+                   ],
+        "name":  "isRegisteredWorker",
+        "outputs":  [
+                        {
+                            "internalType":  "bool",
+                            "name":  "",
+                            "type":  "bool"
+                        }
+                    ],
+        "stateMutability":  "view",
+        "type":  "function"
+    },
+    {
+        "inputs":  [
+                       {
                            "internalType":  "uint256",
                            "name":  "productId",
                            "type":  "uint256"
@@ -430,19 +528,14 @@
                             "type":  "string"
                         },
                         {
-                            "internalType":  "string",
+                            "internalType":  "int256",
                             "name":  "temperature",
-                            "type":  "string"
+                            "type":  "int256"
                         },
                         {
-                            "internalType":  "string",
+                            "internalType":  "int256",
                             "name":  "humidity",
-                            "type":  "string"
-                        },
-                        {
-                            "internalType":  "string",
-                            "name":  "heatIndex",
-                            "type":  "string"
+                            "type":  "int256"
                         },
                         {
                             "internalType":  "uint256",
@@ -461,7 +554,7 @@
                         },
                         {
                             "internalType":  "bool",
-                            "name":  "qualityMaintained",
+                            "name":  "isSpoiled",
                             "type":  "bool"
                         },
                         {
@@ -499,9 +592,29 @@
                             "type":  "string"
                         },
                         {
-                            "internalType":  "string",
-                            "name":  "requiredTemp",
-                            "type":  "string"
+                            "internalType":  "int256",
+                            "name":  "minTemp",
+                            "type":  "int256"
+                        },
+                        {
+                            "internalType":  "int256",
+                            "name":  "maxTemp",
+                            "type":  "int256"
+                        },
+                        {
+                            "internalType":  "int256",
+                            "name":  "minHumidity",
+                            "type":  "int256"
+                        },
+                        {
+                            "internalType":  "int256",
+                            "name":  "maxHumidity",
+                            "type":  "int256"
+                        },
+                        {
+                            "internalType":  "uint256",
+                            "name":  "quantity",
+                            "type":  "uint256"
                         },
                         {
                             "internalType":  "string",
@@ -517,6 +630,11 @@
                             "internalType":  "uint256",
                             "name":  "currentOwner",
                             "type":  "uint256"
+                        },
+                        {
+                            "internalType":  "bool",
+                            "name":  "isSpoiled",
+                            "type":  "bool"
                         }
                     ],
         "stateMutability":  "view",
@@ -533,6 +651,11 @@
                            "internalType":  "enum SupplyChain.WorkerType",
                            "name":  "role",
                            "type":  "uint8"
+                       },
+                       {
+                           "internalType":  "address",
+                           "name":  "workerAddress",
+                           "type":  "address"
                        }
                    ],
         "name":  "registerWorker",
@@ -614,39 +737,24 @@
                            "type":  "uint256"
                        },
                        {
-                           "internalType":  "uint256",
-                           "name":  "workerId",
-                           "type":  "uint256"
-                       },
-                       {
                            "internalType":  "string",
                            "name":  "location",
                            "type":  "string"
                        },
                        {
-                           "internalType":  "string",
+                           "internalType":  "int256",
                            "name":  "temperature",
-                           "type":  "string"
+                           "type":  "int256"
                        },
                        {
-                           "internalType":  "string",
+                           "internalType":  "int256",
                            "name":  "humidity",
-                           "type":  "string"
-                       },
-                       {
-                           "internalType":  "string",
-                           "name":  "heatIndex",
-                           "type":  "string"
+                           "type":  "int256"
                        },
                        {
                            "internalType":  "uint256",
                            "name":  "quantity",
                            "type":  "uint256"
-                       },
-                       {
-                           "internalType":  "bool",
-                           "name":  "qualityMaintained",
-                           "type":  "bool"
                        }
                    ],
         "name":  "updateStatus",
