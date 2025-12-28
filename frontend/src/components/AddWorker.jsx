@@ -96,7 +96,7 @@ export default function AddWorker() {
   };
 
   const getRoleLabel = (roleNum) => {
-    const roles = { "0": "Manufacturer", "1": "Distributor", "2": "Transporter" };
+    const roles = { "0": "Manufacturer", "1": "Distributor", "2": "Transporter", "3": "Customer" };
     return roles[roleNum] || "Unknown";
   };
 
@@ -171,6 +171,7 @@ export default function AddWorker() {
                   <option value="0">🏭 Manufacturer</option>
                   <option value="1">📦 Distributor</option>
                   <option value="2">🚚 Transporter</option>
+                  <option value="3">🛒 Customer</option>
                 </select>
                 <small className="field-hint">Selected: {getRoleLabel(role)}</small>
               </div>

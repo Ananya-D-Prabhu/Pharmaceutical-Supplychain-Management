@@ -193,7 +193,7 @@ def get_worker_performance(worker_id: int, recent_only: bool = False, limit: int
         
         # Add worker info
         performance["worker_name"] = worker[1]
-        performance["worker_role"] = ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"][worker[2]]
+        performance["worker_role"] = ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER", "CUSTOMER"][worker[2]]
         
         return performance
         
@@ -225,7 +225,11 @@ def get_performance_rankings(role: str = None, min_shipments: int = 0, min_score
             worker_id = worker_data[0]
             worker_name = worker_data[1]
             worker_role_enum = worker_data[2]
-            worker_role = ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"][worker_role_enum]
+            worker_role = ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER", "CUSTOMER"][worker_role_enum]
+            
+            # Skip customers - they don't handle products, only view them
+            if worker_role == "CUSTOMER":
+                continue
             
             # Filter by role if specified
             if role and worker_role != role.upper():
@@ -359,7 +363,7 @@ def compare_workers(worker_ids: str):
                 comparisons.append({
                     "worker_id": worker_id,
                     "name": worker[1],
-                    "role": ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"][worker[2]],
+                    "role": ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER", "CUSTOMER"][worker[2]],
                     "performance": performance
                 })
             except Exception as e:

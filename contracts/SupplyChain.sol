@@ -34,7 +34,7 @@ contract SupplyChain {
     uint256 private workerIdCounter = 0;
 
     // ---------------------- ENUMS ---------------------------
-    enum WorkerType { MANUFACTURER, DISTRIBUTOR, TRANSPORTER }
+    enum WorkerType { MANUFACTURER, DISTRIBUTOR, TRANSPORTER, CUSTOMER }
 
     // ---------------------- STRUCTS -------------------------
 

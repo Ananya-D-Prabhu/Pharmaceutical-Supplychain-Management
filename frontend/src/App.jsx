@@ -14,6 +14,7 @@ import MetaMaskConnect from "./components/MetaMaskConnect";
 import PerformanceRankings from "./components/PerformanceRankings";
 import AssignProduct from "./components/AssignProduct";
 import MyAssignments from "./components/MyAssignments";
+import CustomerProductView from "./components/CustomerProductView";
 import contractABI from "./contractConfig";
 import "./App.css";
 import "./EnhancedStyles.css";
@@ -23,7 +24,7 @@ const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [connectedAccount, setConnectedAccount] = useState("");
-  const [userRole, setUserRole] = useState(null); // null, "OWNER", "MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"
+  const [userRole, setUserRole] = useState(null); // null, "OWNER", "MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER", "CUSTOMER"
   const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
@@ -69,8 +70,8 @@ export default function App() {
         const worker = await contract.workers(workerId);
         console.log("📋 Worker data:", worker);
         
-        // worker[2] is the role enum: 0=MANUFACTURER, 1=DISTRIBUTOR, 2=TRANSPORTER
-        const roles = ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"];
+        // worker[2] is the role enum: 0=MANUFACTURER, 1=DISTRIBUTOR, 2=TRANSPORTER, 3=CUSTOMER
+        const roles = ["MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER", "CUSTOMER"];
         const detectedRole = roles[worker[2]];
         console.log("✅ Worker role:", detectedRole);
         setUserRole(detectedRole);
@@ -122,6 +123,8 @@ export default function App() {
         return <PerformanceRankings />;
       case "assignProduct":
         return <AssignProduct />;
+      case "customerView":
+        return <CustomerProductView />;
       default:
         return <Dashboard />;
     }
@@ -140,6 +143,7 @@ export default function App() {
     { id: "performance", label: "🏆 Performance Rankings", roles: ["OWNER", "MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"] },
     { id: "qrGenerator", label: "🔲 Generate QR", roles: ["MANUFACTURER", "DISTRIBUTOR"] },
     { id: "verification", label: "✅ Verify Product", roles: ["OWNER", "MANUFACTURER", "DISTRIBUTOR", "TRANSPORTER"] },
+    { id: "customerView", label: "🛒 View Products", roles: ["CUSTOMER"] },
   ];
 
   // Filter menu items based on user role

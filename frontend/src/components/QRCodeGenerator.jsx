@@ -151,6 +151,14 @@ export default function QRCodeGenerator() {
     link.click();
   };
 
+  const downloadQRData = () => {
+    const blob = new Blob([qrJsonData], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.download = `product-${productId}-qr-data.json`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+  };
+
   const copyQRData = () => {
     navigator.clipboard.writeText(qrJsonData);
     alert('✅ QR JSON data copied to clipboard!\n\nYou can now paste it in the "Verify Product" page to test verification.');
@@ -264,10 +272,18 @@ export default function QRCodeGenerator() {
                     </button>
                     
                     <button 
+                      onClick={downloadQRData}
+                      className="btn-download"
+                      title="Download JSON file for easy upload"
+                    >
+                      💾 Download JSON File
+                    </button>
+                    
+                    <button 
                       onClick={copyQRData}
                       className="btn-copy-json"
                     >
-                      📋 Copy QR JSON Data
+                      📋 Copy QR Data
                     </button>
                   </div>
                   
